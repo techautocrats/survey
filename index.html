@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Main Page</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #6a85b6, #bac8e0);
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .main-button {
+      padding: 30px 60px;
+      font-size: 28px;
+      border: none;
+      border-radius: 14px;
+      background-color: #1c2e4a; /* darker navy */
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .main-button:hover {
+      background-color: #14203a;
+      transform: scale(1.03);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="main-button" onclick="location.href='play.html'">Play Game</button>
+    <button class="main-button" onclick="location.href='survey.html'">Emotion Survey</button>
+    <button class="main-button" onclick="location.href='exercise.html'">Do Exercise</button>
+  </div>
+</body>
+</html>

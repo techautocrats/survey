@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catch the Balloons!</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+    }
+    canvas {
+      background: linear-gradient(to top, #a1c4fd, #c2e9fb);
+      display: block;
+    }
+    #scoreboard {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: #fff;
+      font-size: 20px;
+      background: rgba(0,0,0,0.3);
+      padding: 8px 15px;
+      border-radius: 10px;
+    }
+    #gameOverPopup {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      display: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    #gameOverPopup h2 {
+      margin-bottom: 20px;
+    }
+    .popup-button {
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background-color: #1c2e4a;
+      color: white;
+      transition: background 0.3s;
+    }
+    .popup-button:hover {
+      background-color: #14203a;
+    }
+  </style>
+</head>
+<body>
+  <div id="scoreboard">Score: 0 | Time: 30s</div>
+  <div id="gameOverPopup">
+    <h2>Time's up!</h2>
+    <p id="finalScore">Your score: 0</p>
+    <button class="popup-button" onclick="restartGame()">🔄 Restart</button>
+    <button class="popup-button" onclick="goToMainMenu()">🏠 Main Menu</button>
+  </div>
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let basket = {
+      x: canvas.width / 2 - 50,
+      y: canvas.height - 100,
+      width: 100,
+      height: 50,
+      color: '#3e4a89'
+    };
+
+    let balloons = [];
+    let score = 0;
+    let timeLeft = 30;
+    const spawnRate = 40;
+    let gameOver = false;
+    let frame = 0;
+
+    function spawnBalloon() {
+      balloons.push({
+        x: Math.random() * (canvas.width - 30),
+        y: -30,
+        radius: 20 + Math.random() * 10,
+        speed: 2 + Math.random() * 3,
+        color: `hsl(${Math.random() * 360}, 70%, 60%)`
+      });
+    }
+
+    function drawBasket() {
+      ctx.fillStyle = basket.color;
+      ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
+    }
+
+    function drawBalloons() {
+      for (let b of balloons) {
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+        ctx.fillStyle = b.color;
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+
+    function updateBalloons() {
+      for (let i = balloons.length - 1; i >= 0; i--) {
+        balloons[i].y += balloons[i].speed;
+        if (
+          balloons[i].y + balloons[i].radius > basket.y &&
+          balloons[i].x > basket.x &&
+          balloons[i].x < basket.x + basket.width
+        ) {
+          balloons.splice(i, 1);
+          score++;
+        } else if (balloons[i].y - balloons[i].radius > canvas.height) {
+          balloons.splice(i, 1);
+        }
+      }
+    }
+
+    function gameLoop() {
+      if (gameOver) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (frame % spawnRate === 0) spawnBalloon();
+
+      drawBasket();
+      drawBalloons();
+      updateBalloons();
+
+      frame++;
+      requestAnimationFrame(gameLoop);
+    }
+
+    function moveBasket(e) {
+      let x = e.touches ? e.touches[0].clientX : e.clientX;
+      basket.x = x - basket.width / 2;
+      if (basket.x < 0) basket.x = 0;
+      if (basket.x + basket.width > canvas.width)
+        basket.x = canvas.width - basket.width;
+    }
+
+    canvas.addEventListener('touchmove', moveBasket);
+    canvas.addEventListener('mousemove', moveBasket);
+
+    const interval = setInterval(() => {
+      if (timeLeft <= 0) {
+        gameOver = true;
+        clearInterval(interval);
+        document.getElementById('finalScore').innerText = `Your score: ${score}`;
+        document.getElementById('gameOverPopup').style.display = 'block';
+      } else {
+        timeLeft--;
+        document.getElementById('scoreboard').innerText =
+          `Score: ${score} | Time: ${timeLeft}s`;
+      }
+    }, 1000);
+
+    function restartGame() {
+      location.reload();
+    }
+
+    function goToMainMenu() {
+      window.location.href = 'index.html';
+    }
+
+    gameLoop();
+  </script>
+</body>
+</html>
